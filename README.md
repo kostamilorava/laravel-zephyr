@@ -18,7 +18,7 @@ composer require redberryproducts/laravel-zephyr
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-zephyr-config"
+sail php artisan vendor:publish --provider="RedberryProducts\Zephyr\ZephyrServiceProvider"
 ```
 
 This is the contents of the published config file:

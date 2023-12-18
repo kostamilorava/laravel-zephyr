@@ -6,6 +6,7 @@ use RedberryProducts\Zephyr\Commands\GenerateCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
+
 class ZephyrServiceProvider extends PackageServiceProvider
 {
     public function boot()
