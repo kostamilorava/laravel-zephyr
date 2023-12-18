@@ -53,13 +53,12 @@ class GenerateCommand extends Command
         $this->getTestCasesDataFromZephyr();
         $this->createTestsDirectoryIfNotExists();
 
-        $testsStructureArray = (new TestsStructureArrayBuilder($this->folders, $this->testCases))->build();
+        $testsStructureArray = (new TestsStructureArrayBuilder($this->folders['values'], $this->testCases['values']))->build();
 
         $existingTestIds = $this->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Feature'));
 
-        $this->createTestFiles($testsStructureArray, 'tests/Feature');
 
-        (new TestFileCreator($existingTestIds, $this->projectKey, $this))->createFiles($testsStructureArray, 'tests/Feature');
+        (new TestFileCreator($existingTestIds, $this))->createFiles($testsStructureArray, 'tests/Feature');
 
         $this->cleanupEmptyFolders(Storage::disk('local')->path('tests/Feature'));
 

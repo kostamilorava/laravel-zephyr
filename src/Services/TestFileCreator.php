@@ -9,13 +9,13 @@ class TestFileCreator
 {
     private array $existingTestIds;
     private string $projectKey;
-    private mixed $command;
+    private mixed $commandInstance;
 
-    public function __construct(array $existingTestIds, string $projectKey, mixed $command)
+    public function __construct(array $existingTestIds, mixed $commandInstance)
     {
         $this->existingTestIds = $existingTestIds;
-        $this->projectKey = $projectKey;
-        $this->command = $command;
+        $this->projectKey = config('zephyr.project_key');
+        $this->commandInstance = $commandInstance;
     }
 
     public function createFiles(array $structure, string $path): void
@@ -59,7 +59,7 @@ class TestFileCreator
     {
         foreach ($this->existingTestIds as $testArray) {
             if ($testArray['test_id'] === $testCase['key']) {
-                $this->command->warn("Test case {$testCase['key']} already exists in {$testArray['file']}, skipping");
+                $this->commandInstance->warn("Test case {$testCase['key']} already exists in {$testArray['file']}, skipping");
                 return true;
             }
         }
