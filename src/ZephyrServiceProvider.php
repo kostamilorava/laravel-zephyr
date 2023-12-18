@@ -9,10 +9,6 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class ZephyrServiceProvider extends PackageServiceProvider
 {
-    public function boot()
-    {
-        $this->registerPublishables();
-    }
 
     public function configurePackage(Package $package): void
     {
@@ -23,22 +19,8 @@ class ZephyrServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('laravel-zephyr')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_laravel-zephyr_table')
+            ->hasConfigFile('zephyr')
             ->hasCommands([GenerateCommand::class]);
     }
 
-
-    protected function registerPublishables(): void
-    {
-        if (! $this->app->runningInConsole()) {
-            return;
-        }
-
-        $this->publishes([
-            __DIR__.'/../config/zephyr.php' => config_path('zephyr.php'),
-        ], 'config');
-
-    }
 }
