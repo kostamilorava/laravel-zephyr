@@ -28,9 +28,9 @@ class GenerateCommand extends Command
         $testModeEnabled = config('zephyr.test_mode');
 
         if ($testModeEnabled) {
-            if (Storage::fileExists('testCases.json' && Storage::fileExists('folders.json'))) {
-                $testCases = json_decode(Storage::get('testCases.json'), true);
-                $folders = json_decode(Storage::get('folders.json'), true);
+            if (Storage::disk('local')->fileExists('testCases.json') && Storage::disk('local')->fileExists('folders.json')) {
+                $testCases = json_decode(Storage::disk('local')->get('testCases.json'), true);
+                $folders = json_decode(Storage::disk('local')->get('folders.json'), true);
             }
         }
 
@@ -55,13 +55,13 @@ class GenerateCommand extends Command
 
         $testsStructureArray = (new TestsStructureArrayBuilder($this->folders, $this->testCases))->build();
 
-        $existingTestIds = $this->scanDirectoryForTestIds(Storage::path('tests/Feature'));
+        $existingTestIds = $this->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Feature'));
 
         $this->createTestFiles($testsStructureArray, 'tests/Feature');
 
         (new TestFileCreator($existingTestIds, $this->projectKey, $this))->createFiles($testsStructureArray, 'tests/Feature');
 
-        $this->cleanupEmptyFolders(Storage::path('tests/Feature'));
+        $this->cleanupEmptyFolders(Storage::disk('local')->path('tests/Feature'));
 
         return self::SUCCESS;
 
@@ -114,14 +114,14 @@ class GenerateCommand extends Command
 
     private function saveJsonDataAsFiles($testCases, $folders): void
     {
-        Storage::put('testCases.json', json_encode($testCases));
-        Storage::put('folders.json', json_encode($folders));
+        Storage::disk('local')->put('testCases.json', json_encode($testCases));
+        Storage::disk('local')->put('folders.json', json_encode($folders));
     }
 
     private function createTestsDirectoryIfNotExists(): void
     {
-        if (! Storage::directoryExists('tests/Feature')) {
-            Storage::makeDirectory('tests/Feature');
+        if (! Storage::disk('local')->directoryExists('tests/Feature')) {
+            Storage::disk('local')->makeDirectory('tests/Feature');
         }
     }
 
@@ -161,11 +161,11 @@ class GenerateCommand extends Command
     //                }
     //
     //                // Create test file if it does not exist
-    //                if (!Storage::fileExists($testFilePath)) {
-    //                    Storage::put($testFilePath, "<?php\n");
+    //                if (!Storage::disk('local')->fileExists($testFilePath)) {
+    //                    Storage::disk('local')->put($testFilePath, "<?php\n");
     //                }
     //                // Put test cases in test files
-    //                Storage::append($testFilePath, "\ntest('[{$testCase['key']}] {$testCase['name']}', function () {\n\n});\n");
+    //                Storage::disk('local')->append($testFilePath, "\ntest('[{$testCase['key']}] {$testCase['name']}', function () {\n\n});\n");
     //            }
     //        }
     //
@@ -176,8 +176,8 @@ class GenerateCommand extends Command
     //                    $newPath = $path . '/' . Str::slug($node['name']);
     //                }
     //
-    //                if (!Storage::directoryExists($newPath)) {
-    //                    Storage::makeDirectory($newPath);
+    //                if (!Storage::disk('local')->directoryExists($newPath)) {
+    //                    Storage::disk('local')->makeDirectory($newPath);
     //                }
     //
     //                // Recursively create directories/files for any children

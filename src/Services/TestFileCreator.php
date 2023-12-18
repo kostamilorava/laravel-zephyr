@@ -43,7 +43,7 @@ class TestFileCreator
         if (isset($structure['children'])) {
             foreach ($structure['children'] as $node) {
                 $newPath = $this->getNewPath($path, $node);
-                Storage::makeDirectory($newPath);
+                Storage::disk('local')->makeDirectory($newPath);
                 $this->createFiles($node, $newPath);
             }
         }
@@ -68,8 +68,8 @@ class TestFileCreator
 
     private function writeTestCaseToFile(string $testFilePath, array $testCase): void
     {
-        Storage::makeDirectory($testFilePath);
-        Storage::append($testFilePath, "\ntest('[{$testCase['key']}] {$testCase['name']}', function () {\n\n});\n");
+        Storage::disk('local')->makeDirectory($testFilePath);
+        Storage::disk('local')->append($testFilePath, "\ntest('[{$testCase['key']}] {$testCase['name']}', function () {\n\n});\n");
     }
 
     private function getNewPath(string $path, array $node): string

@@ -43,7 +43,7 @@ class SendResults extends Command
             'executions' => [],
         ];
 
-        $xml = Storage::get('junit.xml');
+        $xml = Storage::disk('local')->get('junit.xml');
         $xmlObject = simplexml_load_string($xml);
 
         $testcases = $this->extractTestcases($xmlObject);
