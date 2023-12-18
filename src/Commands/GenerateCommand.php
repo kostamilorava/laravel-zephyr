@@ -4,7 +4,6 @@ namespace RedberryProducts\Zephyr\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use RedberryProducts\Zephyr\Services\TestFileCreator;
 use RedberryProducts\Zephyr\Services\TestsStructureArrayBuilder;
 use RedberryProducts\Zephyr\Traits\ZephyrTrait;
@@ -57,7 +56,6 @@ class GenerateCommand extends Command
 
         $existingTestIds = $this->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Feature'));
 
-
         (new TestFileCreator($existingTestIds, $this))->createFiles($testsStructureArray, 'tests/Feature');
 
         $this->cleanupEmptyFolders(Storage::disk('local')->path('tests/Feature'));
@@ -74,7 +72,7 @@ class GenerateCommand extends Command
 
     private function createTestsDirectoryIfNotExists(): void
     {
-        if (!Storage::disk('local')->directoryExists('tests/Feature')) {
+        if (! Storage::disk('local')->directoryExists('tests/Feature')) {
             Storage::disk('local')->makeDirectory('tests/Feature');
         }
     }
@@ -98,7 +96,7 @@ class GenerateCommand extends Command
 
     public function cleanupEmptyFolders($path): void
     {
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             $this->error('Invalid dir');
 
             return;
@@ -123,7 +121,7 @@ class GenerateCommand extends Command
 
         // Filter out system pointers
         $files = array_filter($files, function ($file) {
-            return !in_array($file, ['.', '..']);
+            return ! in_array($file, ['.', '..']);
         });
 
         // If empty, delete the directory
