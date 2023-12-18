@@ -14,7 +14,7 @@ class GenerateCommand extends Command
 {
     use ZephyrTrait;
 
-    protected $signature = 'generate';
+    protected $signature = 'zephyr:generate';
 
     protected $description = 'Generate test files for Laravel';
 
