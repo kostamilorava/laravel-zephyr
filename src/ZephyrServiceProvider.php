@@ -5,8 +5,6 @@ namespace RedberryProducts\Zephyr;
 use RedberryProducts\Zephyr\Commands\GenerateCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Spatie\MediaLibrary\MediaCollections\Models\Observers\MediaObserver;
 
 class ZephyrServiceProvider extends PackageServiceProvider
 {
