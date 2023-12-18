@@ -37,6 +37,14 @@ return [
     |
     */
 
-    'max_test_results' => 1000
+    'max_test_results' => 1000,
+
+    /*
+    |--------------------------------------------------------------------------
+    | base_url that zephyr api uses
+    |--------------------------------------------------------------------------
+    */
+
+    'base_url' => env('ZEPHYR_BASE_URL', 'https://api.zephyrscale.smartbear.com/v2'),
 
 ];
