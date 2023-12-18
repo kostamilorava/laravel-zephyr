@@ -31,7 +31,6 @@ class TestFileCreator
                 if ($this->testCaseExists($testCase)) {
                     continue;
                 }
-
                 $testFilePath = $this->getTestFilePath($structure, $path, $testCase);
                 $this->writeTestCaseToFile($testFilePath, $testCase);
             }
@@ -68,7 +67,10 @@ class TestFileCreator
 
     private function writeTestCaseToFile(string $testFilePath, array $testCase): void
     {
-        Storage::disk('local')->makeDirectory($testFilePath);
+        if (!Storage::disk('local')->fileExists($testFilePath)) {
+            Storage::disk('local')->put($testFilePath, "<?php\n");
+        }
+
         Storage::disk('local')->append($testFilePath, "\ntest('[{$testCase['key']}] {$testCase['name']}', function () {\n\n});\n");
     }
 
