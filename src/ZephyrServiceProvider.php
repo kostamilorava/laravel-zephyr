@@ -12,22 +12,12 @@ class ZephyrServiceProvider extends PackageServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton('zephyr-api', function () {
-            return new ApiService;
-        });
-
-        $this->app->singleton('zephyr-test-files-manager', function () {
-            return new TestFilesManagerService;
-        });
+        $this->app->bind(ApiService::class);
+        $this->app->singleton(TestFilesManagerService::class);
     }
 
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package
             ->name('laravel-zephyr')
             ->hasConfigFile('zephyr')

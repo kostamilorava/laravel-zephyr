@@ -146,7 +146,7 @@ class TestFilesManagerService
     /*
     * Extracts test cases from junit xml object
     */
-    private function extractTestcases(SimpleXMLElement $element): array
+    public function extractTestcases(SimpleXMLElement $element): array
     {
         $testcases = [];
 

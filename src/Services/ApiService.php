@@ -26,12 +26,12 @@ class ApiService
         return $response->json();
     }
 
-    public function getTestCases(string $projectKey, ?int $maxResults): ?array
+    public function getTestCases(string $projectKey, ?int $maxResults = null): ?array
     {
         return $this->get('/testcases?' . http_build_query(['projectKey' => $projectKey, 'maxResults' => $maxResults ?? config('zephyr.max_test_results')]));
     }
 
-    public function getFolders(string $projectKey, ?int $maxResults): ?array
+    public function getFolders(string $projectKey, ?int $maxResults = null): ?array
     {
         return $this->get(
             '/folders?' . http_build_query(

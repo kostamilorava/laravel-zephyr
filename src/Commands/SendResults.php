@@ -5,6 +5,8 @@ namespace RedberryProducts\Zephyr\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Storage;
+use RedberryProducts\Zephyr\Services\ApiService;
+use RedberryProducts\Zephyr\Services\TestFilesManagerService;
 use RedberryProducts\Zephyr\Traits\TestPatternMatcherTrait;
 
 class SendResults extends Command
@@ -41,11 +43,10 @@ class SendResults extends Command
         $xml = Storage::disk('local')->get('junit.xml');
         $xmlObject = simplexml_load_string($xml);
 
-        app('zephyr-test-files-manager')
-            ->setProjectKey($this->argument('projectKey'))
+        TestFilesManagerService::setProjectKey($this->argument('projectKey'))
             ->setCommandInstance($this);
 
-        $testcases = app('zephyr-test-files-manager')->extractTestcases($xmlObject);
+        $testcases = TestFilesManagerService::extractTestcases($xmlObject);
         foreach ($testcases as $testcase) {
             preg_match_all($this->getTestIdPattern($this->argument('projectKey')), $testcase['name'], $matches);
 
@@ -65,7 +66,7 @@ class SendResults extends Command
             }
 
         }
-        $result = app('zephyr-test-files-manager')->sendCustomTestResultsToZephyr($testResultsArray);
+        $result = ApiService::sendCustomTestResultsToZephyr($testResultsArray);
         //        dd($result->json());
 
         return self::SUCCESS;

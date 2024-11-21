@@ -5,6 +5,8 @@ namespace RedberryProducts\Zephyr\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use RedberryProducts\Zephyr\Helpers\TestsStructureArrayBuilder;
+use RedberryProducts\Zephyr\Services\ApiService;
+use RedberryProducts\Zephyr\Services\TestFilesManagerService;
 use RedberryProducts\Zephyr\Traits\TestPatternMatcherTrait;
 
 class GenerateCommand extends Command
@@ -33,8 +35,8 @@ class GenerateCommand extends Command
         }
 
         if (empty($testCases) || empty($folders)) {
-            $testCases = app('zephyrApi')->getTestCases($this->argument('projectKey'));
-            $folders = app('zephyrApi')->getFolders($this->argument('projectKey'));
+            $testCases = ApiService::getTestCases($this->argument('projectKey'));
+            $folders = ApiService::getFolders($this->argument('projectKey'));
             if ($testModeEnabled) {
                 $this->saveJsonDataAsFiles($testCases, $folders);
             }
@@ -53,11 +55,10 @@ class GenerateCommand extends Command
         $testsStructureArray = (new TestsStructureArrayBuilder($this->folders['values'], $this->testCases['values']))->build();
 
         // Retrieve existing tests
-        $existingTestIds = app('zephyr-test-files-manager')->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Browser'));
+        $existingTestIds = TestFilesManagerService::scanDirectoryForTestIds(Storage::disk('local')->path('tests/Browser'));
 
         // Create test folders / files
-        app('zephyr-test-files-manager')
-            ->setProjectKey($this->argument('projectKey'))
+        TestFilesManagerService::setProjectKey($this->argument('projectKey'))
             ->setCommandInstance($this)
             ->setExistingTestIds($existingTestIds)
             ->createFiles($testsStructureArray, 'tests/Browser');
