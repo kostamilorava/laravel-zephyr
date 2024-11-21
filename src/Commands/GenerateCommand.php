@@ -4,15 +4,14 @@ namespace RedberryProducts\Zephyr\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use RedberryProducts\Zephyr\Services\TestFileCreator;
-use RedberryProducts\Zephyr\Services\TestsStructureArrayBuilder;
-use RedberryProducts\Zephyr\Traits\ZephyrTrait;
+use RedberryProducts\Zephyr\Helpers\TestsStructureArrayBuilder;
+use RedberryProducts\Zephyr\Traits\TestPatternMatcherTrait;
 
 class GenerateCommand extends Command
 {
-    use ZephyrTrait;
+    use TestPatternMatcherTrait;
 
-    protected $signature = 'zephyr:generate';
+    protected $signature = 'zephyr:generate {projectKey}';
 
     protected $description = 'Generate test files for Laravel';
 
@@ -34,8 +33,8 @@ class GenerateCommand extends Command
         }
 
         if (empty($testCases) || empty($folders)) {
-            $testCases = $this->syncZephyrTestsWithLaravel($this->projectKey, config('zephyr.max_test_results'));
-            $folders = $this->getFolders($this->projectKey, config('zephyr.max_test_results'));
+            $testCases = app('zephyrApi')->getTestCases($this->argument('projectKey'));
+            $folders = app('zephyrApi')->getFolders($this->argument('projectKey'));
             if ($testModeEnabled) {
                 $this->saveJsonDataAsFiles($testCases, $folders);
             }
@@ -47,53 +46,50 @@ class GenerateCommand extends Command
 
     public function handle(): int
     {
-
-        $this->initializeVariables();
         $this->getTestCasesDataFromZephyr();
         $this->createTestsDirectoryIfNotExists();
 
+        // Create a structure of folders / files that should be created
         $testsStructureArray = (new TestsStructureArrayBuilder($this->folders['values'], $this->testCases['values']))->build();
 
-        $existingTestIds = $this->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Feature'));
+        // Retrieve existing tests
+        $existingTestIds = app('zephyr-test-files-manager')->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Browser'));
 
-        (new TestFileCreator($existingTestIds, $this))->createFiles($testsStructureArray, 'tests/Feature');
+        // Create test folders / files
+        app('zephyr-test-files-manager')
+            ->setProjectKey($this->argument('projectKey'))
+            ->setCommandInstance($this)
+            ->setExistingTestIds($existingTestIds)
+            ->createFiles($testsStructureArray, 'tests/Browser');
 
-        $this->cleanupEmptyFolders(Storage::disk('local')->path('tests/Feature'));
+        $this->cleanupEmptyFolders(Storage::disk('local')->path('tests/Browser'));
 
         return self::SUCCESS;
 
     }
 
+    /*
+     * Triggered only if test mode is enabled. Saves data to json files to make development process easier
+     */
     private function saveJsonDataAsFiles($testCases, $folders): void
     {
         Storage::disk('local')->put('testCases.json', json_encode($testCases));
         Storage::disk('local')->put('folders.json', json_encode($folders));
     }
 
+    /*
+     *
+     */
     private function createTestsDirectoryIfNotExists(): void
     {
-        if (! Storage::disk('local')->directoryExists('tests/Feature')) {
-            Storage::disk('local')->makeDirectory('tests/Feature');
+        if (! Storage::disk('local')->directoryExists('tests/Browser')) {
+            Storage::disk('local')->makeDirectory('tests/Browser');
         }
     }
 
-    public function syncZephyrTestsWithLaravel(string $projectKey, int $maxResults = 10): ?array
-    {
-        return $this->getDataFromZephyr('/testcases?' . http_build_query(['projectKey' => $projectKey, 'maxResults' => $maxResults]));
-    }
-
-    public function getFolders(string $projectKey, int $maxResults = 10, ?string $folderType = null): ?array
-    {
-        return $this->getDataFromZephyr(
-            '/folders?' . http_build_query(
-                [
-                    'projectKey' => $projectKey,
-                    'maxResults' => $maxResults,
-                ]
-            )
-        );
-    }
-
+    /*
+     * todo@kosta Maybe make this more readable? :)
+     */
     public function cleanupEmptyFolders($path): void
     {
         if (! is_dir($path)) {

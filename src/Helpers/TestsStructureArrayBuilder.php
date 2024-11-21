@@ -1,12 +1,18 @@
 <?php
 
-namespace RedberryProducts\Zephyr\Services;
+namespace RedberryProducts\Zephyr\Helpers;
 
+/*
+ * This class will create structure of folders & test cases that should be created on filesystem
+ */
 class TestsStructureArrayBuilder
 {
     private array $folders;
+
     private array $testCases;
+
     private array $items = [];
+
     private array $structure = [];
 
     public function __construct(array $folders, array $testCases)
@@ -20,6 +26,7 @@ class TestsStructureArrayBuilder
         $this->initializeItems();
         $this->populateChildrenAndRoot();
         $this->assignTestCases();
+
         return $this->structure;
     }
 

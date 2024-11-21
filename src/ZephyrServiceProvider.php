@@ -3,12 +3,24 @@
 namespace RedberryProducts\Zephyr;
 
 use RedberryProducts\Zephyr\Commands\GenerateCommand;
+use RedberryProducts\Zephyr\Facades\ZephyrTestFilesManager;
+use RedberryProducts\Zephyr\Services\ApiService;
+use RedberryProducts\Zephyr\Services\TestFilesManagerService;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-
 class ZephyrServiceProvider extends PackageServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->singleton('zephyr-api', function () {
+            return new ApiService;
+        });
+
+        $this->app->singleton('zephyr-test-files-manager', function () {
+            return new TestFilesManagerService;
+        });
+    }
 
     public function configurePackage(Package $package): void
     {
@@ -22,5 +34,4 @@ class ZephyrServiceProvider extends PackageServiceProvider
             ->hasConfigFile('zephyr')
             ->hasCommands([GenerateCommand::class]);
     }
-
 }

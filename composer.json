@@ -78,10 +78,7 @@
         "laravel": {
             "providers": [
                 "RedberryProducts\\Zephyr\\ZephyrServiceProvider"
-            ],
-            "aliases": {
-                "Zephyr": "RedberryProducts\\Zephyr\\Facades\\Zephyr"
-            }
+            ]
         }
     },
     "minimum-stability": "dev",
