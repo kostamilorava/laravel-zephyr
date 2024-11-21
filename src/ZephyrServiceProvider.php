@@ -10,7 +10,7 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class ZephyrServiceProvider extends PackageServiceProvider
 {
-    public function register(): void
+    public function packageRegistered(): void
     {
         $this->app->bind(ApiService::class);
         $this->app->singleton(TestFilesManagerService::class);
