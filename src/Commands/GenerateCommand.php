@@ -21,6 +21,17 @@ class GenerateCommand extends Command
 
     protected array $folders;
 
+    protected $apiService;
+
+    protected TestFilesManagerService $testFilesManager;
+
+    public function __construct(ApiService $apiService, TestFilesManagerService $testFilesManager)
+    {
+        parent::__construct();
+        $this->apiService = $apiService;
+        $this->testFilesManager = $testFilesManager;
+    }
+
     private function getTestCasesDataFromZephyr(): void
     {
         $testCases = [];
@@ -35,8 +46,8 @@ class GenerateCommand extends Command
         }
 
         if (empty($testCases) || empty($folders)) {
-            $testCases = ApiService::getTestCases($this->argument('projectKey'));
-            $folders = ApiService::getFolders($this->argument('projectKey'));
+            $testCases = $this->apiService->getTestCases($this->argument('projectKey'));
+            $folders = $this->apiService->getFolders($this->argument('projectKey'));
             if ($testModeEnabled) {
                 $this->saveJsonDataAsFiles($testCases, $folders);
             }
@@ -55,10 +66,10 @@ class GenerateCommand extends Command
         $testsStructureArray = (new TestsStructureArrayBuilder($this->folders['values'], $this->testCases['values']))->build();
 
         // Retrieve existing tests
-        $existingTestIds = TestFilesManagerService::scanDirectoryForTestIds(Storage::disk('local')->path('tests/Browser'));
+        $existingTestIds = $this->testFilesManager->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Browser'));
 
         // Create test folders / files
-        TestFilesManagerService::setProjectKey($this->argument('projectKey'))
+        $this->testFilesManager->setProjectKey($this->argument('projectKey'))
             ->setCommandInstance($this)
             ->setExistingTestIds($existingTestIds)
             ->createFiles($testsStructureArray, 'tests/Browser');
